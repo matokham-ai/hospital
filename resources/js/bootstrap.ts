@@ -38,52 +38,63 @@ const pusherKey = getMeta('pusher-key') || (import.meta as any).env?.VITE_PUSHER
 const pusherCluster = getMeta('pusher-cluster') || (import.meta as any).env?.VITE_PUSHER_APP_CLUSTER || null;
 const pusherUseTLS = (getMeta('pusher-use-tls') || (import.meta as any).env?.VITE_PUSHER_USE_TLS || 'true') === 'true';
 
-let echoConfig: any;
-
-if (reverbKey) {
+// Only initialize Echo if we have valid broadcast credentials
+if (reverbKey && reverbHost) {
     const port = reverbPortStr ? parseInt(reverbPortStr, 10) : 8080;
     const scheme = (reverbScheme || 'http').toLowerCase();
     const useTLS = scheme === 'https';
-    echoConfig = {
-        broadcaster: 'reverb',
-        key: reverbKey,
-        wsHost: reverbHost || '127.0.0.1',
-        wsPort: port,
-        wssPort: port,
-        forceTLS: useTLS,
-        encrypted: useTLS,
-        disableStats: true,
-        enabledTransports: ['ws', 'wss'],
-    };
-} else if (pusherKey) {
-    echoConfig = {
-        broadcaster: 'pusher',
-        key: pusherKey,
-        cluster: pusherCluster || 'mt1',
-        forceTLS: pusherUseTLS,
-        encrypted: pusherUseTLS,
-        disableStats: true,
-    };
+    
+    try {
+        window.Echo = new Echo({
+            broadcaster: 'reverb',
+            key: reverbKey,
+            wsHost: reverbHost,
+            wsPort: port,
+            wssPort: port,
+            forceTLS: useTLS,
+            encrypted: useTLS,
+            disableStats: true,
+            enabledTransports: ['ws', 'wss'],
+        });
+        
+        if (import.meta.env.DEV) {
+            console.log('✅ Echo initialized with Reverb');
+        }
+    } catch (error) {
+        console.warn('Failed to initialize Echo with Reverb:', error);
+    }
+} else if (pusherKey && pusherKey !== 'missing' && pusherCluster) {
+    try {
+        window.Echo = new Echo({
+            broadcaster: 'pusher',
+            key: pusherKey,
+            cluster: pusherCluster,
+            forceTLS: pusherUseTLS,
+            encrypted: pusherUseTLS,
+            disableStats: true,
+        });
+        
+        if (import.meta.env.DEV) {
+            console.log('✅ Echo initialized with Pusher');
+        }
+    } catch (error) {
+        console.warn('Failed to initialize Echo with Pusher:', error);
+    }
 } else {
-    console.error('Broadcast config missing: no reverb-key or pusher-key meta/env found.');
-    echoConfig = {
-        broadcaster: 'pusher',
-        key: 'missing',
-        cluster: 'mt1',
-        forceTLS: true,
-        encrypted: true,
-        disableStats: true,
-    };
+    if (import.meta.env.DEV) {
+        console.info('ℹ️ Broadcasting disabled - no valid credentials found');
+    }
 }
 
-window.Echo = new Echo(echoConfig);
-
 // Optional: log connection state in dev
-if (import.meta.env.DEV && (window as any).Echo?.connector?.pusher?.connection) {
+if (import.meta.env.DEV && window.Echo?.connector?.pusher?.connection) {
     window.Echo.connector.pusher.connection.bind('connected', () =>
-        console.log('✅ Connected to Reverb server')
+        console.log('✅ Connected to broadcast server')
     );
     window.Echo.connector.pusher.connection.bind('disconnected', () =>
-        console.log('⚠️ Disconnected from Reverb server')
+        console.log('⚠️ Disconnected from broadcast server')
+    );
+    window.Echo.connector.pusher.connection.bind('error', (err: any) =>
+        console.warn('⚠️ Broadcast connection error:', err)
     );
 }
