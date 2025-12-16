@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Head, useForm, Link } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/Components/ui/card";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Textarea } from "@/Components/ui/textarea";
+import { Badge } from "@/Components/ui/badge";
 import { PlusCircle, Pill, Calendar, User, Clock, ArrowLeft, Search } from "lucide-react";
 import axios from "axios";
 

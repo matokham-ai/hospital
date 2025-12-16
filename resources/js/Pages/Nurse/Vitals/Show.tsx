@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import { Textarea } from "@/Components/ui/textarea";
+import { Badge } from "@/Components/ui/badge";
 import { Activity, ArrowLeft, Thermometer, Heart, Gauge, Wind, Droplets, Save, User, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

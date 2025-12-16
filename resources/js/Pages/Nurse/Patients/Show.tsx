@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Button } from "@/Components/ui/button";
+import { Badge } from "@/Components/ui/badge";
 import { User, Activity, Pill, AlertTriangle, FileText } from "lucide-react";
 import {
   Dialog,
@@ -13,16 +13,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+} from "@/Components/ui/dialog";
+import { Textarea } from "@/Components/ui/textarea";
+import { Label } from "@/Components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/Components/ui/select";
 
 interface Patient {
   id: string;

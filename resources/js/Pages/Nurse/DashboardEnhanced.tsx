@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 import { Head, router } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Progress } from "@/Components/ui/progress";
 import FacilitySwitcher from "@/Components/Nurse/FacilitySwitcher";
 import PatientListSelector from "@/Components/Nurse/PatientListSelector";
 import {

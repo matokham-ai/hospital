@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Head, useForm } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Button } from "@/Components/ui/button";
+import { Textarea } from "@/Components/ui/textarea";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { CalendarDays, ClipboardList, PlusCircle, User, Clock, FileText, Utensils, Droplets, X, CheckCircle, AlertCircle } from "lucide-react";
 
 export default function CarePlans({ admission, plans }) {

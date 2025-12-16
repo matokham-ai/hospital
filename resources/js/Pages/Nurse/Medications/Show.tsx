@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Button } from "@/Components/ui/button";
+import { Textarea } from "@/Components/ui/textarea";
+import { Label } from "@/Components/ui/label";
+import { Badge } from "@/Components/ui/badge";
 import { Pill, ArrowLeft, Clock, AlertTriangle, CheckCircle, User, Calendar } from "lucide-react";
 
 interface Patient {

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/Components/ui/card";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
 import { CalendarDays, User, Bed, Search, X, Filter } from "lucide-react";
 
 interface Patient {

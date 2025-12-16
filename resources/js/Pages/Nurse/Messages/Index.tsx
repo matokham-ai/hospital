@@ -1,6 +1,6 @@
 import { Head } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { MessageSquare, Construction } from "lucide-react";
 
 export default function MessagesIndex() {

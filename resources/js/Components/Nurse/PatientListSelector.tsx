@@ -14,7 +14,7 @@ import {
   Minus
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/Components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,10 +22,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from '@/Components/ui/dropdown-menu';
+import { Badge } from '@/Components/ui/badge';
+import { Input } from '@/Components/ui/input';
+import { ScrollArea } from '@/Components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
 interface PatientList {

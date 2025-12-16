@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Head, useForm } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/Components/ui/card";
+import { Button } from "@/Components/ui/button";
+import { Textarea } from "@/Components/ui/textarea";
+import { Input } from "@/Components/ui/input";
 import { CalendarDays, ClipboardList, PlusCircle } from "lucide-react";
-import { Select } from "@/components/ui/select";
+import { Select } from "@/Components/ui/select";
 
 interface Patient {
     id: number;

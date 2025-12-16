@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Head, router, Link } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/Components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/Components/ui/tabs";
+import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import { QrCode, CalendarClock, LayoutGrid, Pill, Clock, CheckCircle2, XCircle } from "lucide-react";
 import MedicationGrid from "./components/MedicationGrid";
 import MedicationTimeline from "./components/MedicationTimeline";
