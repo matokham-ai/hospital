@@ -6,7 +6,7 @@ import PermissionsOverview from '@/Components/Doctor/PermissionsOverview';
 import MedicineBrowser from '@/Components/Doctor/MedicineBrowser';
 import MedicalRecordsBrowser from '@/Components/Doctor/MedicalRecordsBrowser';
 import DashboardStatus from '@/Components/Doctor/DashboardStatus';
-import { PermissionGuard } from '@/Hooks/usePermissions';
+import { PermissionGuard } from '@/hooks/usePermissions';
 import { doctorRoutes } from '@/Utils/navigation';
 
 

@@ -25,7 +25,7 @@ import MedicalRecordsBrowser from "@/Components/Doctor/MedicalRecordsBrowser";
 import DashboardStatus from "@/Components/Doctor/DashboardStatus";
 
 // ✅ Correct hook import
-import { PermissionGuard } from "@/Hooks/usePermissions";
+import { PermissionGuard } from "@/hooks/usePermissions";
 
 // ✅ Ensure doctorRoutes is exported correctly from Utils
 import { doctorRoutes } from "@/Utils/navigation";
