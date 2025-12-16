@@ -16,7 +16,7 @@
         {{-- Broadcast/Echo meta for frontend --}}
         @if(config('broadcasting.default') === 'pusher')
             <meta name="pusher-key" content="{{ config('broadcasting.connections.pusher.key') }}">
-            <meta name="pusher-cluster" content="{{ config('broadcasting.connections.pusher.options.cluster ?? config('broadcasting.connections.pusher.cluster') }}">
+            <meta name="pusher-cluster" content="{{ config('broadcasting.connections.pusher.options.cluster') ?? config('broadcasting.connections.pusher.cluster') }}">
             <meta name="pusher-use-tls" content="{{ config('broadcasting.connections.pusher.options.useTLS', true) ? 'true' : 'false' }}">
         @endif
         @if(config('broadcasting.default') === 'reverb')
