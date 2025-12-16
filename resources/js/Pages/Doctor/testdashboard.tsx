@@ -27,8 +27,8 @@ import DashboardStatus from "@/Components/Doctor/DashboardStatus";
 // ✅ Correct hook import
 import { PermissionGuard } from "@/hooks/usePermissions";
 
-// ✅ Ensure doctorRoutes is exported correctly from Utils
-import { doctorRoutes } from "@/Utils/navigation";
+// ✅ Ensure doctorRoutes is exported correctly from utils
+import { doctorRoutes } from "@/utils/navigation";
 
 export default function DoctorDashboard({
   userName,

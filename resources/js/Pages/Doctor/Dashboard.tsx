@@ -7,7 +7,7 @@ import MedicineBrowser from '@/Components/Doctor/MedicineBrowser';
 import MedicalRecordsBrowser from '@/Components/Doctor/MedicalRecordsBrowser';
 import DashboardStatus from '@/Components/Doctor/DashboardStatus';
 import { PermissionGuard } from '@/hooks/usePermissions';
-import { doctorRoutes } from '@/Utils/navigation';
+import { doctorRoutes } from '@/utils/navigation';
 
 
 
@@ -26,12 +26,12 @@ export default function DoctorDashboard({
     todaySchedule?: any[];
     pendingTasks?: any[];
 }) {
-  
+
     const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
     const [showLabOrderModal, setShowLabOrderModal] = useState(false);
     const [showMedicineBrowser, setShowMedicineBrowser] = useState(false);
     const [showMedicalRecords, setShowMedicalRecords] = useState(false);
-    
+
     return (
         <HMSLayout
             user={{ name: userName || 'Doctor', email: userEmail || '', role: userRole || 'Doctor' }}
@@ -267,7 +267,7 @@ export default function DoctorDashboard({
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Doctor Permissions Overview */}
                         <PermissionsOverview userRole={userRole || 'Doctor'} showDetails={false} />
-                        
+
                         {/* Dashboard Status */}
                         <DashboardStatus />
                     </div>
