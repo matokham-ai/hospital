@@ -11,10 +11,13 @@ return new class extends Migration
         Schema::table('lab_results', function (Blueprint $table) {
             $table->string('parameter_name')->after('lab_order_id');
             $table->string('value')->after('parameter_name');
-            $table->string('unit')->nullable()->after('value');
-            $table->string('reference_range')->nullable()->after('unit');
-            $table->enum('status', ['normal', 'abnormal', 'critical'])->default('normal')->after('reference_range');
-            $table->text('description')->nullable()->after('status');
+              // Use safe defaults/nullable to support SQLite and existing rows
+              $table->string('parameter_name')->default('')->after('lab_order_id');
+              $table->string('value')->default('')->after('parameter_name');
+              $table->string('unit')->nullable()->after('value');
+              $table->string('reference_range')->nullable()->after('unit');
+              $table->enum('status', ['pending', 'completed', 'revised'])->default('pending')->after('reference_range');
+              $table->text('description')->nullable()->after('status');
         });
     }
 

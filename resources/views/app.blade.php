@@ -13,6 +13,18 @@
 
         <!-- Scripts -->
         @routes
+        {{-- Broadcast/Echo meta for frontend --}}
+        @if(config('broadcasting.default') === 'pusher')
+            <meta name="pusher-key" content="{{ config('broadcasting.connections.pusher.key') }}">
+            <meta name="pusher-cluster" content="{{ config('broadcasting.connections.pusher.options.cluster ?? config('broadcasting.connections.pusher.cluster') }}">
+            <meta name="pusher-use-tls" content="{{ config('broadcasting.connections.pusher.options.useTLS', true) ? 'true' : 'false' }}">
+        @endif
+        @if(config('broadcasting.default') === 'reverb')
+            <meta name="reverb-key" content="{{ config('broadcasting.connections.reverb.key') }}">
+            <meta name="reverb-host" content="{{ config('broadcasting.connections.reverb.host') }}">
+            <meta name="reverb-port" content="{{ config('broadcasting.connections.reverb.port') }}">
+            <meta name="reverb-scheme" content="{{ config('broadcasting.connections.reverb.scheme') }}">
+        @endif
         @viteReactRefresh
         @vite(['resources/js/app.tsx', 'resources/css/app.css'])
         @inertiaHead
