@@ -1,9 +1,14 @@
 import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
-import { Building2, MapPin, Phone, Mail, Users, DollarSign, TrendingUp, Bed, Activity, ArrowRight } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/Components/ui/dialog';
+import { Input } from '@/Components/ui/input';
+import { Label } from '@/Components/ui/label';
+import { Textarea } from '@/Components/ui/textarea';
+import { Building2, MapPin, Phone, Mail, Users, DollarSign, TrendingUp, Bed, Activity, ArrowRight, PlusCircle } from 'lucide-react';
 
 interface Branch {
     id: number;
@@ -22,6 +27,170 @@ interface Branch {
 
 interface BranchesIndexProps {
     branches: Branch[];
+}
+
+function AddBranchModal() {
+    const [open, setOpen] = useState(false);
+    const [form, setForm] = useState({
+        branch_code: '',
+        branch_name: '',
+        location: '',
+        address: '',
+        phone: '',
+        email: '',
+        status: 'active',
+        is_main_branch: false,
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        router.post('/admin/branches', form, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setOpen(false);
+                setForm({
+                    branch_code: '',
+                    branch_name: '',
+                    location: '',
+                    address: '',
+                    phone: '',
+                    email: '',
+                    status: 'active',
+                    is_main_branch: false,
+                });
+            },
+        });
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button className="bg-gradient-to-r from-teal-600 to-emerald-500 text-white shadow hover:shadow-lg transition-all rounded-xl">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Branch
+                </Button>
+            </DialogTrigger>
+
+            <DialogContent className="max-w-2xl rounded-2xl border border-teal-100 shadow-xl bg-white/90 backdrop-blur-md max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                        <Building2 className="h-5 w-5 text-teal-600" />
+                        Add New Branch
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-500">
+                        Create a new hospital branch location. All fields marked with * are required.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <form onSubmit={handleSubmit} className="space-y-4 mt-3">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <Label>Branch Code *</Label>
+                            <Input
+                                value={form.branch_code}
+                                onChange={(e) => setForm({ ...form, branch_code: e.target.value })}
+                                placeholder="e.g., MAIN, BR01"
+                                required
+                                maxLength={10}
+                            />
+                        </div>
+                        <div>
+                            <Label>Branch Name *</Label>
+                            <Input
+                                value={form.branch_name}
+                                onChange={(e) => setForm({ ...form, branch_name: e.target.value })}
+                                placeholder="e.g., Main Hospital, Downtown Clinic"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <Label>Location</Label>
+                        <Input
+                            value={form.location}
+                            onChange={(e) => setForm({ ...form, location: e.target.value })}
+                            placeholder="e.g., Downtown, City Center"
+                        />
+                    </div>
+
+                    <div>
+                        <Label>Address</Label>
+                        <Textarea
+                            value={form.address}
+                            onChange={(e) => setForm({ ...form, address: e.target.value })}
+                            placeholder="Full street address"
+                            rows={2}
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <Label>Phone</Label>
+                            <Input
+                                value={form.phone}
+                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                                placeholder="e.g., +1 234 567 8900"
+                                type="tel"
+                            />
+                        </div>
+                        <div>
+                            <Label>Email</Label>
+                            <Input
+                                value={form.email}
+                                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                placeholder="e.g., branch@hospital.com"
+                                type="email"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <Label>Status *</Label>
+                            <select
+                                value={form.status}
+                                onChange={(e) => setForm({ ...form, status: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                required
+                            >
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div className="flex items-center gap-2 pt-6">
+                            <input
+                                type="checkbox"
+                                id="is_main_branch"
+                                checked={form.is_main_branch}
+                                onChange={(e) => setForm({ ...form, is_main_branch: e.target.checked })}
+                                className="w-4 h-4 text-teal-600 rounded focus:ring-teal-500"
+                            />
+                            <Label htmlFor="is_main_branch" className="cursor-pointer">
+                                Main Branch
+                            </Label>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="gap-2 pt-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setOpen(false)}
+                            className="rounded-xl"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="bg-gradient-to-r from-teal-600 to-emerald-500 text-white rounded-xl shadow hover:shadow-lg transition-all"
+                        >
+                            Create Branch
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
 }
 
 export default function BranchesIndex({ branches }: BranchesIndexProps) {
@@ -45,10 +214,7 @@ export default function BranchesIndex({ branches }: BranchesIndexProps) {
                         <h1 className="text-3xl font-bold text-gray-900">Branch Management</h1>
                         <p className="text-gray-600 mt-1">Manage hospital branches and locations</p>
                     </div>
-                    <Button>
-                        <Building2 className="h-4 w-4 mr-2" />
-                        Add Branch
-                    </Button>
+                    <AddBranchModal />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -176,10 +342,7 @@ export default function BranchesIndex({ branches }: BranchesIndexProps) {
                             <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">No branches found</h3>
                             <p className="text-gray-600 mb-4">Get started by creating your first branch</p>
-                            <Button>
-                                <Building2 className="h-4 w-4 mr-2" />
-                                Add Branch
-                            </Button>
+                            <AddBranchModal />
                         </CardContent>
                     </Card>
                 )}

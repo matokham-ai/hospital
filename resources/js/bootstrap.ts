@@ -43,7 +43,7 @@ if (reverbKey && reverbHost) {
     const port = reverbPortStr ? parseInt(reverbPortStr, 10) : 8080;
     const scheme = (reverbScheme || 'http').toLowerCase();
     const useTLS = scheme === 'https';
-    
+
     try {
         window.Echo = new Echo({
             broadcaster: 'reverb',
@@ -56,7 +56,7 @@ if (reverbKey && reverbHost) {
             disableStats: true,
             enabledTransports: ['ws', 'wss'],
         });
-        
+
         if (import.meta.env.DEV) {
             console.log('✅ Echo initialized with Reverb');
         }
@@ -73,7 +73,7 @@ if (reverbKey && reverbHost) {
             encrypted: pusherUseTLS,
             disableStats: true,
         });
-        
+
         if (import.meta.env.DEV) {
             console.log('✅ Echo initialized with Pusher');
         }
