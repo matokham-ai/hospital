@@ -219,8 +219,8 @@ export default function BranchesIndex({ branches }: BranchesIndexProps) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {branches.map((branch) => (
-                        <Card 
-                            key={branch.id} 
+                        <Card
+                            key={branch.id}
                             className="hover:shadow-xl transition-all cursor-pointer group border-2 hover:border-teal-400"
                             onClick={() => handleViewDashboard(branch.id)}
                         >
@@ -296,7 +296,7 @@ export default function BranchesIndex({ branches }: BranchesIndexProps) {
                                 </div>
 
                                 {/* Action Button */}
-                                <Button 
+                                <Button
                                     className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 group-hover:shadow-lg transition-all"
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -309,9 +309,9 @@ export default function BranchesIndex({ branches }: BranchesIndexProps) {
 
                                 {/* Secondary Actions */}
                                 <div className="flex gap-2">
-                                    <Button 
-                                        variant="outline" 
-                                        size="sm" 
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
                                         className="flex-1"
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -320,8 +320,8 @@ export default function BranchesIndex({ branches }: BranchesIndexProps) {
                                     >
                                         Edit
                                     </Button>
-                                    <Button 
-                                        variant="outline" 
+                                    <Button
+                                        variant="outline"
                                         size="sm"
                                         onClick={(e) => {
                                             e.stopPropagation();

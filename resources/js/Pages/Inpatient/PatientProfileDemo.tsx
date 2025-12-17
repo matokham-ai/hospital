@@ -104,10 +104,7 @@ export default function PatientProfileDemo() {
   useEffect(() => {
     fetchLiveData();
     
-    // Set up auto-refresh every 30 seconds
-    const interval = setInterval(fetchLiveData, 30000);
-    
-    return () => clearInterval(interval);
+    // Auto-refresh removed to prevent interference with user activities
   }, []);
 
   const handleViewProfile = (patientData: LivePatientData) => {

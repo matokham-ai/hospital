@@ -252,8 +252,7 @@ export default function InpatientDashboard({
   /* -------------------------------- Effects -------------------------------- */
   useEffect(() => {
     fetchBedData();
-    const interval = setInterval(fetchBedData, 30000);
-    return () => clearInterval(interval);
+    // Auto-refresh removed to prevent interference with user activities
   }, []);
 
   /* --------------------------------- Render -------------------------------- */

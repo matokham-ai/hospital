@@ -24,7 +24,6 @@ import { nurseNavigation } from "@/Config/nurseNavigation";
 import { billingNavigation } from "@/Config/billingNavigation";
 import { pharmacyNavigation } from "@/Config/pharmacyNavigation";
 
-import SessionMonitor from "@/Components/SessionMonitor";
 import SessionWarning from "@/Components/SessionWarning";
 import { Toaster } from "@/Components/ui/toast";
 
@@ -124,7 +123,6 @@ export default function HMSLayout({ children, user }: HMSLayoutProps) {
 
   return (
     <div className={`min-h-screen ${darkMode ? "dark" : ""}`}>
-      <SessionMonitor refreshIntervalMinutes={30} />
 
       {/* TOP NAVBAR */}
       <motion.nav

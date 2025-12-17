@@ -113,12 +113,8 @@ const BedOccupancyModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (!isOpen || !autoRefresh) return;
-
-    const interval = setInterval(fetchBedData, 30000); // Refresh every 30 seconds
-    return () => clearInterval(interval);
-  }, [isOpen, autoRefresh]);
+  // Auto-refresh removed to prevent interference with user activities
+  // Users can manually refresh using the refresh button
 
   // Handle keyboard shortcuts
   useEffect(() => {
