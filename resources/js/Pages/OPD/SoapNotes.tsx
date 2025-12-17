@@ -163,14 +163,14 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
   // -----------------------------
   // KEYBOARD SHORTCUTS - Requirement 8.6
   // -----------------------------
-  
+
   /**
    * Handle add prescription shortcut
    * Requirement 8.6: Ctrl+P to add prescription
    */
   const handleAddPrescriptionShortcut = useCallback(() => {
     if (isConsultationCompleted) return;
-    
+
     // Focus on drug search input
     if (inputRef.current && !showPrescriptionForm) {
       inputRef.current.focus();
@@ -184,7 +184,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
    */
   const handleAddLabOrderShortcut = useCallback(() => {
     if (isConsultationCompleted) return;
-    
+
     // Scroll to lab order section and focus
     const labSection = document.querySelector('[data-lab-section]');
     if (labSection) {
@@ -354,7 +354,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
     const value = e.target.value;
     setDrugSearch(value);
     setSelectedDrug(null); // user is changing text manually
-    
+
     // If user clears the input, show all drugs again
     if (value.trim() === "") {
       setShowSuggestions(true);
@@ -442,7 +442,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
   // -----------------------------
   // PRESCRIPTION MANAGEMENT - Requirements 2.4, 2.5, 6.1, 6.3
   // -----------------------------
-  
+
   /**
    * Handle prescription save from PrescriptionForm
    * Requirement 2.4, 2.5: Create prescription with validation
@@ -450,7 +450,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
   const handleSavePrescription = async (prescriptionData: any) => {
     try {
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
-      
+
       const response = await fetch(`/api/opd/appointments/${appointment.id}/prescriptions`, {
         method: "POST",
         credentials: "include",
@@ -488,12 +488,12 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
 
       // Add new prescription to list - Requirement 6.1
       setPrescriptions([...prescriptions, result.data]);
-      
+
       // Reset form state
       setShowPrescriptionForm(false);
       setSelectedDrug(null);
       setDrugSearch("");
-      
+
       toast({
         title: "Prescription saved",
         description: "Prescription has been added to the consultation",
@@ -531,7 +531,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
   const handleDeletePrescription = async (prescriptionId: number) => {
     try {
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
-      
+
       const response = await fetch(`/api/opd/appointments/${appointment.id}/prescriptions/${prescriptionId}`, {
         method: "DELETE",
         credentials: "include",
@@ -568,7 +568,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
 
       // Remove prescription from list
       setPrescriptions(prescriptions.filter(p => p.id !== prescriptionId));
-      
+
       toast({
         title: "Prescription deleted",
         description: "Prescription has been removed and stock released",
@@ -615,7 +615,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
   const handleSaveLabOrder = async (labOrderData: any) => {
     try {
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
-      
+
       const response = await fetch(`/api/opd/appointments/${appointment.id}/lab-orders`, {
         method: "POST",
         credentials: "include",
@@ -653,11 +653,11 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
 
       // Add new lab order to list - Requirement 6.2
       setLabOrders([...labOrders, result.data]);
-      
+
       // Reset form state
       setShowLabOrderForm(false);
       setSelectedTest(null);
-      
+
       toast({
         title: "Lab order saved",
         description: "Lab order has been added to the consultation",
@@ -699,7 +699,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
   const handleDeleteLabOrder = async (labOrderId: number) => {
     try {
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
-      
+
       const response = await fetch(`/api/opd/appointments/${appointment.id}/lab-orders/${labOrderId}`, {
         method: "DELETE",
         credentials: "include",
@@ -736,7 +736,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
 
       // Remove lab order from list
       setLabOrders(labOrders.filter(l => l.id !== labOrderId));
-      
+
       toast({
         title: "Lab order deleted",
         description: "Lab order has been removed from the consultation",
@@ -755,7 +755,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
   // -----------------------------
   // COMPLETE CONSULTATION - Requirements 5.1, 5.2, 5.3, 5.4, 5.5
   // -----------------------------
-  
+
   /**
    * Handle completion button click
    * Requirement 5.1: Display summary before completion
@@ -791,7 +791,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
       // 2) Complete consultation via new API endpoint
       // This handles instant dispensing, lab order submission, and billing
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
-      
+
       const response = await fetch(`/api/opd/appointments/${appointment.id}/complete`, {
         method: "POST",
         credentials: "include",
@@ -811,7 +811,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
 
       // Success - close modal and show success message
       setShowCompletionModal(false);
-      
+
       toast({
         title: "✅ Consultation Completed",
         description: `Successfully processed ${result.data.summary.prescriptions_processed} prescriptions and ${result.data.summary.lab_orders_submitted} lab orders.`,
@@ -825,13 +825,13 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
 
     } catch (error: any) {
       console.error("Error completing consultation:", error);
-      
+
       toast({
         title: "❌ Completion Failed",
         description: error.message || "Failed to complete the consultation. Please try again.",
         variant: "destructive",
       });
-      
+
       setCompleting(false);
       setShowCompletionModal(false);
     }
@@ -923,15 +923,18 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
                 <button
                   type="button"
                   onClick={(e) => {
+                    console.log('Order Tests clicked', { isConsultationCompleted });
                     e.preventDefault();
                     e.stopPropagation();
                     // Scroll to lab section
                     const labSection = document.querySelector('[data-lab-section]');
+                    console.log('Lab section found:', !!labSection);
                     if (labSection) {
                       labSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       // Focus on lab search after scroll
                       setTimeout(() => {
                         const labInput = document.querySelector('[data-lab-search-input]') as HTMLInputElement;
+                        console.log('Lab input found:', !!labInput);
                         if (labInput) {
                           labInput.focus();
                         }
@@ -1240,7 +1243,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
                               </div>
                             ) : drugSuggestions.length === 0 ? (
                               <div className="px-3 py-3 text-sm text-gray-500">
-                                {drugSearch.trim().length > 0 
+                                {drugSearch.trim().length > 0
                                   ? `No drugs found matching "${drugSearch}"`
                                   : "No drugs available in formulary"}
                               </div>
@@ -1251,18 +1254,18 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
                                 </div>
                                 {drugSuggestions.map((drug, idx) => {
                                   const isHighlighted = idx === highlightedIndex;
-                                  
+
                                   // Stock status badge configuration - Requirement 2.3
                                   const stockBadgeConfig = {
                                     in_stock: { label: 'In Stock', color: 'bg-green-100 text-green-700', icon: '✓' },
                                     low_stock: { label: 'Low Stock', color: 'bg-yellow-100 text-yellow-700', icon: '⚠' },
                                     out_of_stock: { label: 'Out of Stock', color: 'bg-red-100 text-red-700', icon: '✗' },
                                   };
-                                  
-                                  const stockConfig = drug.stock_status 
-                                    ? stockBadgeConfig[drug.stock_status] 
+
+                                  const stockConfig = drug.stock_status
+                                    ? stockBadgeConfig[drug.stock_status]
                                     : null;
-                                  
+
                                   return (
                                     <div
                                       key={drug.id}
@@ -1290,7 +1293,7 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
                                         {/* Stock availability indicator - Requirement 2.3 */}
                                         {stockConfig && (
                                           <div className="flex items-center gap-1">
-                                            <span 
+                                            <span
                                               className={`px-2 py-1 text-xs font-medium rounded-full ${stockConfig.color} flex items-center gap-1`}
                                               title={`${drug.stock_quantity || 0} units available`}
                                             >
