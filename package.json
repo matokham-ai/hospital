@@ -3,7 +3,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "node --max-old-space-size=8192 node_modules/vite/bin/vite.js build",
+        "build": "node --max-old-space-size=4096 --max-semi-space-size=128 --optimize-for-size node_modules/vite/bin/vite.js build",
+        "build:low-memory": "node --max-old-space-size=2048 --max-semi-space-size=64 --optimize-for-size --gc-interval=100 node_modules/vite/bin/vite.js build",
         "dev": "vite",
         "test": "vitest",
         "test:run": "vitest --run",
