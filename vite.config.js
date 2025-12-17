@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import laravel from 'laravel-vite-plugin'
-import react from '@vitejs/plugin-react-swc' // or '@vitejs/plugin-react' if not using SWC
+import react from '@vitejs/plugin-react' // Switched from SWC to avoid WASM memory issues
 import * as path from 'path' // ✅ FIX: import path
 
 export default defineConfig({
@@ -9,7 +9,10 @@ export default defineConfig({
       input: ['resources/css/app.css', 'resources/js/app.tsx'],
       refresh: false,
     }),
-    react(),
+    react({
+      // Disable Fast Refresh to reduce memory usage
+      fastRefresh: false,
+    }),
   ],
   resolve: {
     alias: {
