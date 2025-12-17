@@ -901,17 +901,18 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
                     e.preventDefault();
                     e.stopPropagation();
                     // Scroll to prescription section and focus on drug search
-                    const prescriptionSection = document.querySelector('[data-prescription-section]');
+                    const prescriptionSection = document.querySelector('[data-prescription-section]') as HTMLElement;
                     if (prescriptionSection) {
                       prescriptionSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      // Focus on drug search input after scroll
-                      setTimeout(() => {
+                      // Focus input after render
+                      window.requestAnimationFrame(() => {
                         const drugInput = document.querySelector('[data-drug-search-input]') as HTMLInputElement;
                         if (drugInput) {
                           drugInput.focus();
                         }
-                      }, 500);
+                      });
                     }
+                    return false;
                   }}
                   disabled={isConsultationCompleted}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors flex items-center gap-2"
@@ -926,17 +927,19 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
                     e.preventDefault();
                     e.stopPropagation();
                     // Scroll to lab section
-                    const labSection = document.querySelector('[data-lab-section]');
+                    const labSection = document.querySelector('[data-lab-section]') as HTMLElement;
                     if (labSection) {
+                      // Immediate scroll
                       labSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      // Focus on lab search after scroll
-                      setTimeout(() => {
+                      // Focus input after a short delay
+                      window.requestAnimationFrame(() => {
                         const labInput = document.querySelector('[data-lab-search-input]') as HTMLInputElement;
                         if (labInput) {
                           labInput.focus();
                         }
-                      }, 500);
+                      });
                     }
+                    return false;
                   }}
                   disabled={isConsultationCompleted}
                   className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors flex items-center gap-2"
