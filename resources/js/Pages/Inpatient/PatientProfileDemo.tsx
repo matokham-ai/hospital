@@ -103,7 +103,7 @@ export default function PatientProfileDemo() {
 
   useEffect(() => {
     fetchLiveData();
-    
+
     // Auto-refresh removed to prevent interference with user activities
   }, []);
 
@@ -127,7 +127,7 @@ export default function PatientProfileDemo() {
       nursingCharts: patientData.nursingCharts,
       diet: patientData.diet,
     };
-    
+
     setSelectedPatient(profileData);
     setProfileOpen(true);
   };
@@ -202,7 +202,7 @@ export default function PatientProfileDemo() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">Live Patient Data</h3>
                   <p className="text-gray-600 text-sm mt-1">
-                    {loading ? 'Loading patient data...' : 
+                    {loading ? 'Loading patient data...' :
                      error ? 'Unable to load patient data' :
                      `${livePatients.length} active patients • Click to view comprehensive profiles`}
                   </p>
@@ -348,7 +348,7 @@ function PatientCard({ patient, onViewProfile }: PatientCardProps) {
           {patient.status}
         </span>
       </div>
-      
+
       <div className="space-y-2 mb-3">
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <BedDouble className="w-4 h-4" />

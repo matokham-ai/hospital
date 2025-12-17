@@ -16,6 +16,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'resources/js'),
     },
   },
+  build: {
+    sourcemap: false,
+    minify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', '@inertiajs/react'],
+        },
+      },
+    },
+  },
   server: {
     host: '127.0.0.1',
     port: 5173,
