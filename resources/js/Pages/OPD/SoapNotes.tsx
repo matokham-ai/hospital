@@ -923,18 +923,15 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
                 <button
                   type="button"
                   onClick={(e) => {
-                    console.log('Order Tests clicked', { isConsultationCompleted });
                     e.preventDefault();
                     e.stopPropagation();
                     // Scroll to lab section
                     const labSection = document.querySelector('[data-lab-section]');
-                    console.log('Lab section found:', !!labSection);
                     if (labSection) {
                       labSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       // Focus on lab search after scroll
                       setTimeout(() => {
                         const labInput = document.querySelector('[data-lab-search-input]') as HTMLInputElement;
-                        console.log('Lab input found:', !!labInput);
                         if (labInput) {
                           labInput.focus();
                         }
