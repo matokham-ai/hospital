@@ -1,0 +1,125 @@
+<?php
+// Test the actual admission endpoint with real data
+require_once 'vendor/autoload.php';
+
+// Load Laravel environment
+$app = require_once 'bootstrap/app.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Inpatient\InpatientController;
+
+echo "=== Testing Actual Admission Function ===\n\n";
+
+// Get real data from database
+$patient = DB::table('patients')->first();
+$bed = DB::table('beds')->where('status', 'available')->first();
+$user = DB::table('users')->where('id', '>', 1)->first(); // Get a real user
+
+if (!$patient || !$bed || !$user) {
+    echo "❌ Missing required data:\n";
+    echo "Patient: " . ($patient ? "✅ {$patient->id}" : "❌") . "\n";
+    echo "Available bed: " . ($bed ? "✅ {$bed->id}" : "❌") . "\n";
+    echo "User: " . ($user ? "✅ {$user->id}" : "❌") . "\n";
+    exit(1);
+}
+
+echo "Using real data:\n";
+echo "Patient ID: {$patient->id} (type: " . gettype($patient->id) . ")\n";
+echo "Bed ID: {$bed->id}\n";
+echo "User ID: {$user->id}\n\n";
+
+// Test the validation first
+echo "1. Testing validation:\n";
+
+$testData = [
+    'patientId' => $patient->id,
+    'bedId' => $bed->id,
+    'attendingDoctorId' => $user->id,
+    'admissionType' => 'emergency',
+    'priority' => 'urgent',
+    'primaryDiagnosis' => 'Test diagnosis',
+    'chiefComplaint' => 'Test complaint',
+];
+
+try {
+    $request = new Request($testData);
+    
+    $validated = $request->validate([
+        'patientId' => 'required|exists:patients,id',
+        'bedId' => 'required|exists:beds,id',
+        'attendingDoctorId' => 'required|exists:users,id',
+        'admissionType' => 'required|in:emergency,elective,urgent,routine',
+        'priority' => 'required|in:routine,urgent,critical',
+        'primaryDiagnosis' => 'required|string|max:500',
+        'chiefComplaint' => 'required|string|max:1000',
+    ]);
+    
+    echo "✅ Validation passed\n";
+    print_r($validated);
+    
+} catch (\Exception $e) {
+    echo "❌ Validation failed: " . $e->getMessage() . "\n";
+    
+    // Check each validation rule individually
+    echo "\nChecking individual validations:\n";
+    
+    // Check patient exists
+    $patientExists = DB::table('patients')->where('id', $patient->id)->exists();
+    echo "Patient exists: " . ($patientExists ? "✅" : "❌") . "\n";
+    
+    // Check bed exists
+    $bedExists = DB::table('beds')->where('id', $bed->id)->exists();
+    echo "Bed exists: " . ($bedExists ? "✅" : "❌") . "\n";
+    
+    // Check user exists
+    $userExists = DB::table('users')->where('id', $user->id)->exists();
+    echo "User exists: " . ($userExists ? "✅" : "❌") . "\n";
+    
+    exit(1);
+}
+
+// Test the actual database insert
+echo "\n2. Testing database insert with validated data:\n";
+
+try {
+    DB::beginTransaction();
+    
+    $beforeCount = DB::table('encounters')->count();
+    echo "Encounters before: $beforeCount\n";
+    
+    // Try the exact same insert as the function
+    $encounterId = DB::table('encounters')->insertGetId([
+        'encounter_number' => 'TEST-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
+        'patient_id' => $validated['patientId'],
+        'type' => 'IPD',
+        'status' => 'ACTIVE',
+        'admission_datetime' => now(),
+        'attending_physician_id' => $validated['attendingDoctorId'],
+        'chief_complaint' => $validated['chiefComplaint'],
+        'priority' => 'URGENT',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    
+    echo "Encounter created with ID: $encounterId\n";
+    
+    $afterCount = DB::table('encounters')->count();
+    echo "Encounters after: $afterCount\n";
+    
+    if ($afterCount > $beforeCount) {
+        echo "✅ Data was actually saved!\n";
+    } else {
+        echo "❌ Data was not saved!\n";
+    }
+    
+    DB::rollBack();
+    echo "✅ Test rolled back\n";
+    
+} catch (\Exception $e) {
+    DB::rollBack();
+    echo "❌ Database insert failed: " . $e->getMessage() . "\n";
+}
+
+echo "\nDone!\n";
