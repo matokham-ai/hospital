@@ -144,6 +144,9 @@ Route::middleware(['auth:web', 'web'])->name('api.')->group(function () {
         // Consultation Completion
         Route::get('/{id}/summary', [App\Http\Controllers\API\OpdConsultationController::class, 'summary'])->name('summary');
         Route::post('/{id}/complete', [App\Http\Controllers\API\OpdConsultationController::class, 'complete'])->name('complete');
+        
+        // Billing
+        Route::get('/{id}/billing-summary', [App\Http\Controllers\OpdController::class, 'getBillingSummary'])->name('billing-summary');
     });
 
 });

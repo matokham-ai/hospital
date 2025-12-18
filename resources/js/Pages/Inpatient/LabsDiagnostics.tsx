@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Head, useForm, router } from "@inertiajs/react";
 import HMSLayout from "@/Layouts/HMSLayout";
+import AddNewTestModal from "@/Components/Inpatient/AddNewTestModal";
 import { ChevronLeft, ChevronRight, FlaskConical, X, Search, FileText, Filter, Plus, Beaker, Clock, AlertCircle, CheckCircle, Zap, Calendar, User, TestTube, Sparkles, Play, Pause, Download, ArrowRight, Eye } from "lucide-react";
 
 interface LabTest {
@@ -81,6 +82,7 @@ export default function LabsDiagnostics({ tests, availableTests, patients, filte
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [showResultsEntryModal, setShowResultsEntryModal] = useState(false);
+  const [showNewTestModal, setShowNewTestModal] = useState(false);
   const [selectedTest, setSelectedTest] = useState<LabTest | null>(null);
   const [patientSearch, setPatientSearch] = useState("");
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
@@ -578,16 +580,25 @@ export default function LabsDiagnostics({ tests, availableTests, patients, filte
             </button>
           </div>
 
-          <button
-            onClick={() => {
-              setShowOrderModal(true);
-              resetModalState();
-            }}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-          >
-            <Plus className="w-5 h-5" />
-            Order Test
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setShowOrderModal(true);
+                resetModalState();
+              }}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <Plus className="w-5 h-5" />
+              Order Test
+            </button>
+            <button
+              onClick={() => setShowNewTestModal(true)}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <Plus className="w-5 h-5" />
+              Add New Test
+            </button>
+          </div>
         </div>
 
         {/* Advanced Filters */}
@@ -1776,6 +1787,15 @@ export default function LabsDiagnostics({ tests, availableTests, patients, filte
           </div>
         </div>
       )}
+
+      {/* Add New Test Modal */}
+      <AddNewTestModal
+        isOpen={showNewTestModal}
+        onClose={() => setShowNewTestModal(false)}
+        onSuccess={() => {
+          setShowNewTestModal(false);
+        }}
+      />
     </HMSLayout>
   );
 }

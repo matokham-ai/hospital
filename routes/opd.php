@@ -17,6 +17,8 @@ Route::middleware(['auth', 'verified'])->prefix('opd')->name('opd.')->group(func
     Route::post('/register-patient', [OpdController::class, 'registerPatient'])->name('register-patient');
     Route::post('/appointments/{id}/start-consultation', [OpdController::class, 'startConsultation'])->name('start-consultation');
     Route::post('/appointments/{id}/complete', [OpdController::class, 'completeConsultation'])->name('complete-consultation');
+    Route::post('/appointments/{id}/reopen', [OpdController::class, 'reopenConsultation'])->name('reopen-consultation');
+    Route::get('/appointments/{id}/billing-summary', [OpdController::class, 'getBillingSummary'])->name('billing-summary');
     Route::get('/consultations/{id}/soap', [OpdController::class, 'editSoapNotes'])->name('edit-soap');
     Route::get('/appointments/{id}/soap', [OpdController::class, 'editSoapNotes'])->name('appointments.soap'); // Alias for tests
     Route::post('/appointments/{id}/soap', [OpdController::class, 'saveSoapNotes'])->name('save-soap');

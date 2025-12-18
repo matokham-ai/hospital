@@ -12,6 +12,7 @@ import LabOrderList from "@/Components/Consultation/LabOrderList";
 import ConsultationStateIndicator from "@/Components/Consultation/ConsultationStateIndicator";
 import CompletionSummaryModal from "@/Components/Consultation/CompletionSummaryModal";
 import KeyboardShortcutsModal from "@/Components/Consultation/KeyboardShortcutsModal";
+import BillingSummary from "@/Components/Consultation/BillingSummary";
 import { useAutoSave, useConsultationStore } from "@/hooks/consultation";
 import { useKeyboardShortcuts, KeyboardShortcut } from "@/hooks/useKeyboardShortcuts";
 
@@ -837,6 +838,62 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
     }
   };
 
+  /**
+   * Handle consultation reopening
+   * Allows modifications to a completed consultation
+   */
+  const handleReopenConsultation = async () => {
+    if (!confirm('Are you sure you want to reopen this consultation? This will allow you to make changes to prescriptions and lab orders.')) {
+      return;
+    }
+
+    setCompleting(true);
+
+    try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
+
+      const response = await fetch(`/opd/appointments/${appointment.id}/reopen`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-CSRF-TOKEN": csrfToken,
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to reopen consultation");
+      }
+
+      // Success - reload the page to reflect the new status
+      toast({
+        title: "✅ Consultation Reopened",
+        description: "You can now add prescriptions and lab orders to this consultation.",
+        variant: "default",
+      });
+
+      // Reload the page after a short delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+
+    } catch (error: any) {
+      console.error("Error reopening consultation:", error);
+
+      toast({
+        title: "❌ Reopen Failed",
+        description: error.message || "Failed to reopen the consultation. Please try again.",
+        variant: "destructive",
+      });
+
+      setCompleting(false);
+    }
+  };
+
   return (
     <HMSLayout user={auth.user}>
       <Head
@@ -955,23 +1012,62 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
                 >
                   {processing ? "Saving..." : "Save Notes"}
                 </button>
-                <button
-                  onClick={handleCompleteClick}
-                  disabled={processing || completing}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center gap-2"
-                >
-                  {completing ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Completing...
-                    </>
-                  ) : (
-                    <>✅ Complete Consultation</>
-                  )}
-                </button>
+                {isConsultationCompleted ? (
+                  <button
+                    onClick={handleReopenConsultation}
+                    disabled={processing}
+                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+                    title="Reopen this consultation to make changes"
+                  >
+                    <span className="text-lg">🔓</span>
+                    <span>Reopen Consultation</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleCompleteClick}
+                    disabled={processing || completing}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+                  >
+                    {completing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Completing...
+                      </>
+                    ) : (
+                      <>✅ Complete Consultation</>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Consultation Status Warning */}
+          {isConsultationCompleted && (
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-lg shadow-sm p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-amber-600 rounded-full flex items-center justify-center">
+                  <span className="text-white text-lg">⚠️</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-amber-900">
+                    Consultation Completed
+                  </h3>
+                  <p className="text-amber-700 text-sm">
+                    This consultation was completed on {appointment.consultation_completed_at ? new Date(appointment.consultation_completed_at).toLocaleString() : 'an earlier date'}. 
+                    To add prescriptions or lab orders, you need to reopen the consultation first.
+                  </p>
+                </div>
+                <button
+                  onClick={handleReopenConsultation}
+                  disabled={processing}
+                  className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 transition-colors text-sm"
+                >
+                  Reopen
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Patient Info */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
@@ -1391,6 +1487,14 @@ export default function SoapNotes({ auth, appointment, soapNote, emergencyData, 
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* 💰 Billing Summary Section */}
+          <div className="mt-6">
+            <BillingSummary 
+              appointmentId={appointment.id}
+              isConsultationCompleted={isConsultationCompleted}
+            />
           </div>
         </div>
       </div>

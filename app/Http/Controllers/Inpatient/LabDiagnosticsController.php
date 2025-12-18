@@ -646,4 +646,62 @@ class LabDiagnosticsController extends Controller
             ], 500);
         }
     }
+
+    public function storeNewTest(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:lab_tests,name',
+                'category' => 'required|string|max:100',
+                'price' => 'required|numeric|min:0.01',
+                'code' => 'nullable|string|max:20|unique:lab_tests,code',
+            ]);
+
+            $testId = DB::table('lab_tests')->insertGetId([
+                'name' => $validated['name'],
+                'category' => $validated['category'],
+                'price' => $validated['price'],
+                'code' => $validated['code'] ?? null,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            \Log::info('New lab test created successfully', [
+                'test_id' => $testId,
+                'test_name' => $validated['name'],
+                'created_by' => auth()->user()->name ?? 'Unknown'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lab test created successfully',
+                'data' => [
+                    'id' => $testId,
+                    'name' => $validated['name'],
+                    'category' => $validated['category'],
+                    'price' => $validated['price'],
+                    'code' => $validated['code'] ?? null,
+                ]
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning('Validation error in creating new lab test', [
+                'errors' => $e->errors()
+            ]);
+
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error creating new lab test', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to create lab test: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

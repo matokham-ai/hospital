@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 class BillingService
 {
     /**
-     * Create or get billing account for an encounter
+     * Create or get billing account for an encounter (supports both Encounter and OpdAppointment)
      */
     public function getOrCreateBillingAccount($encounterId, $patientId = null)
     {
@@ -25,7 +25,7 @@ class BillingService
             if ($opdAppointment) {
                 $patientId = $patientId ?? $opdAppointment->patient_id;
             } elseif (!$patientId) {
-                throw new \Exception("Encounter or OPD Appointment not found");
+                throw new \Exception("Encounter or OPD Appointment not found for ID: {$encounterId}");
             }
         } else {
             $patientId = $patientId ?? $encounter->patient_id;
@@ -40,7 +40,7 @@ class BillingService
             'total_amount' => 0,
             'amount_paid' => 0,
             'balance' => 0,
-            'created_by'      => auth()->id() ?? 1,
+            'created_by' => auth()->id() ?? 1,
         ]);
     }
 
@@ -67,13 +67,21 @@ class BillingService
     public function addConsultationCharge($encounterId, $physicianId, $consultationType = 'OPD')
     {
         try {
-            // 🩺 Step 1: Locate Encounter
+            // 🩺 Step 1: Locate Encounter (try both Encounter and OpdAppointment)
             $encounter = \App\Models\Encounter::find($encounterId);
-            if (!$encounter) {
-                throw new \Exception("Encounter not found for ID: {$encounterId}");
-            }
+            $opdAppointment = null;
+            $patientId = null;
 
-            $patientId = $encounter->patient_id;
+            if ($encounter) {
+                $patientId = $encounter->patient_id;
+            } else {
+                // Try OPD appointment
+                $opdAppointment = \App\Models\OpdAppointment::find($encounterId);
+                if (!$opdAppointment) {
+                    throw new \Exception("Neither Encounter nor OPD Appointment found for ID: {$encounterId}");
+                }
+                $patientId = $opdAppointment->patient_id;
+            }
 
             // 🧾 Step 2: Find or Create Billing Account (auto-generate account number)
             $account = \App\Models\BillingAccount::firstOrCreate(
@@ -123,8 +131,21 @@ class BillingService
 
             $unitPrice = $service->unit_price ?? 0.00;
             $description = "{$consultationType} Consultation ({$service->name})";
-            // 🩺 Step 4.9: Ensure reference_id is stored as physician code (alphanumeric)
-            $referenceId = $physicianId; // e.g. 'PHY004'
+            // 🩺 Step 4.9: Ensure reference_id is stored as numeric ID
+            $referenceId = null;
+            if (is_numeric($physicianId)) {
+                $referenceId = (int) $physicianId;
+            } else {
+                // If it's a physician code like 'PHY001', find the numeric ID
+                $physician = \App\Models\Physician::where('physician_code', $physicianId)->first();
+                if ($physician) {
+                    $referenceId = $physician->id;
+                } else {
+                    // Fallback to user ID if physician not found
+                    $user = \App\Models\User::where('physician_code', $physicianId)->first();
+                    $referenceId = $user ? $user->id : 1; // Default to 1 if not found
+                }
+            }
 
             // 💵 Step 5: Create Billing Item
             $item = \App\Models\BillingItem::create([
@@ -139,11 +160,7 @@ class BillingService
                 'status'         => 'unpaid',
                 'service_code'   => $service->code,
                 'reference_type' => 'physician',
-                'reference_id' => is_numeric($physicianId)
-                    ? (string) $physicianId
-                    : (\App\Models\Physician::where('physician_code', $physicianId)->exists()
-                        ? $physicianId
-                        : (string) $physicianId),
+                'reference_id' => $referenceId,
 
                 'posted_at'      => now(),
             ]);

@@ -215,6 +215,72 @@ class OpdService
         ];
     }
 
+    /**
+     * Reopen a completed consultation for modifications
+     */
+    public function reopenConsultation($appointmentId)
+    {
+        return DB::transaction(function () use ($appointmentId) {
+            // First try to find OPD appointment
+            $opdAppointment = OpdAppointment::find($appointmentId);
+            
+            if ($opdAppointment) {
+                // Check if consultation is completed
+                if ($opdAppointment->status !== 'COMPLETED') {
+                    throw new \Exception('Consultation is not completed and cannot be reopened.');
+                }
+
+                // Reopen the appointment
+                $opdAppointment->update([
+                    'status' => 'IN_PROGRESS',
+                    'consultation_completed_at' => null
+                ]);
+
+                Log::info('Consultation reopened', [
+                    'appointment_id' => $appointmentId,
+                    'reopened_by' => auth()->id(),
+                    'reopened_at' => now()
+                ]);
+
+                return [
+                    'type' => 'opd',
+                    'appointment' => $opdAppointment->fresh(),
+                    'message' => 'Consultation has been reopened for modifications'
+                ];
+            }
+
+            // Try to find regular appointment
+            $regularAppointment = \App\Models\Appointment::find($appointmentId);
+            
+            if ($regularAppointment) {
+                // Check if consultation is completed
+                if ($regularAppointment->status !== 'COMPLETED') {
+                    throw new \Exception('Consultation is not completed and cannot be reopened.');
+                }
+
+                // Reopen the regular appointment
+                $regularAppointment->update([
+                    'status' => 'IN_PROGRESS',
+                    'completed_at' => null
+                ]);
+
+                Log::info('Regular consultation reopened', [
+                    'appointment_id' => $appointmentId,
+                    'reopened_by' => auth()->id(),
+                    'reopened_at' => now()
+                ]);
+
+                return [
+                    'type' => 'regular',
+                    'appointment' => $regularAppointment->fresh(),
+                    'message' => 'Consultation has been reopened for modifications'
+                ];
+            }
+
+            throw new \Exception("Appointment not found with ID: {$appointmentId}");
+        });
+    }
+
     public function completeConsultation($appointmentId, array $finalData = [])
     {
         return DB::transaction(function () use ($appointmentId, $finalData) {
@@ -301,6 +367,43 @@ class OpdService
                     }
                 }
 
+                // Create consultation charge - This is the main billing item that was missing!
+                try {
+                    // Check if consultation charge already exists to prevent duplicates
+                    $existingConsultationCharge = \App\Models\BillingItem::where('encounter_id', $appointmentId)
+                        ->where('item_type', 'consultation')
+                        ->first();
+                    
+                    if (!$existingConsultationCharge) {
+                        $physicianId = $opdAppointment->physician_id ?? $opdAppointment->doctor_id ?? auth()->id();
+                        $consultationType = $opdAppointment->appointment_type === 'EMERGENCY' ? 'Emergency' : 'OPD';
+                        
+                        $this->billingService->addConsultationCharge(
+                            $appointmentId,
+                            $physicianId,
+                            $consultationType
+                        );
+                        
+                        Log::info('Consultation charge created successfully', [
+                            'appointment_id' => $appointmentId,
+                            'physician_id' => $physicianId,
+                            'consultation_type' => $consultationType
+                        ]);
+                    } else {
+                        Log::info('Consultation charge already exists, skipping', [
+                            'appointment_id' => $appointmentId,
+                            'existing_charge_id' => $existingConsultationCharge->id
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to create consultation charge', [
+                        'appointment_id' => $appointmentId,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    // Don't throw here - we want the consultation to complete even if billing fails
+                }
+
                 // Complete the appointment
                 $opdAppointment->completeConsultation();
 
@@ -317,6 +420,82 @@ class OpdService
             $regularAppointment = \App\Models\Appointment::find($appointmentId);
             
             if ($regularAppointment) {
+                // Get prescriptions and lab orders for regular appointments
+                $prescriptions = Prescription::where('encounter_id', $appointmentId)->get();
+                $labOrders = LabOrder::where('encounter_id', $appointmentId)->get();
+
+                // Create billing items for prescriptions
+                foreach ($prescriptions as $prescription) {
+                    try {
+                        if ($prescription->drugFormulary) {
+                            $this->billingService->addMedicationCharge(
+                                $appointmentId,
+                                $prescription->drug_id,
+                                $prescription->drugFormulary->name,
+                                $prescription->quantity
+                            );
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to create billing item for prescription (regular appointment)', [
+                            'prescription_id' => $prescription->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+
+                // Create billing items for lab orders
+                foreach ($labOrders as $labOrder) {
+                    try {
+                        $testName = $labOrder->testCatalog ? $labOrder->testCatalog->name : $labOrder->test_name;
+                        $this->billingService->addLabTestCharge(
+                            $appointmentId,
+                            $labOrder->test_id,
+                            $testName
+                        );
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to create billing item for lab order (regular appointment)', [
+                            'lab_order_id' => $labOrder->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+
+                // Create consultation charge for regular appointment
+                try {
+                    // Check if consultation charge already exists to prevent duplicates
+                    $existingConsultationCharge = \App\Models\BillingItem::where('encounter_id', $appointmentId)
+                        ->where('item_type', 'consultation')
+                        ->first();
+                    
+                    if (!$existingConsultationCharge) {
+                        $physicianId = $regularAppointment->physician_id ?? auth()->id();
+                        $consultationType = $regularAppointment->appointment_type === 'EMERGENCY' ? 'Emergency' : 'Specialist';
+                        
+                        $this->billingService->addConsultationCharge(
+                            $appointmentId,
+                            $physicianId,
+                            $consultationType
+                        );
+                        
+                        Log::info('Consultation charge created successfully (regular appointment)', [
+                            'appointment_id' => $appointmentId,
+                            'physician_id' => $physicianId,
+                            'consultation_type' => $consultationType
+                        ]);
+                    } else {
+                        Log::info('Consultation charge already exists, skipping (regular appointment)', [
+                            'appointment_id' => $appointmentId,
+                            'existing_charge_id' => $existingConsultationCharge->id
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to create consultation charge (regular appointment)', [
+                        'appointment_id' => $appointmentId,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                }
+
                 // Complete the regular appointment
                 $regularAppointment->update([
                     'status' => 'COMPLETED',
@@ -326,7 +505,9 @@ class OpdService
                 return [
                     'type' => 'regular',
                     'appointment' => $regularAppointment->fresh(),
-                    'soap_note' => null
+                    'soap_note' => null,
+                    'prescriptions_processed' => $prescriptions->count(),
+                    'lab_orders_submitted' => $labOrders->count(),
                 ];
             }
 

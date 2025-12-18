@@ -266,6 +266,58 @@ class OpdController extends Controller
     }
 
     /**
+     * Reopen a completed consultation for modifications
+     */
+    public function reopenConsultation(Request $request, $appointmentId)
+    {
+        try {
+            $result = $this->opdService->reopenConsultation($appointmentId);
+
+            // ✅ Inertia request → must return redirect or Inertia page
+            if ($request->header('X-Inertia')) {
+                return redirect()
+                    ->route('opd.edit-soap', $appointmentId)
+                    ->with('success', $result['message']);
+            }
+
+            // ✅ AJAX / API request → return JSON
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'],
+                    'data' => $result,
+                ]);
+            }
+
+            // ✅ Normal browser form submission (non-AJAX)
+            return redirect()->route('opd.edit-soap', $appointmentId)
+                ->with('success', $result['message']);
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to reopen consultation', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            if ($request->header('X-Inertia')) {
+                return back()->withErrors([
+                    'error' => 'Failed to reopen consultation: ' . $e->getMessage(),
+                ]);
+            }
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to reopen consultation: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->withErrors([
+                'error' => 'Failed to reopen consultation: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
      * Complete consultation for an appointment
      */
     public function completeConsultation(Request $request, $appointmentId)
@@ -338,7 +390,42 @@ class OpdController extends Controller
         }
     }
 
-
+    /**
+     * Get billing summary for an appointment
+     */
+    public function getBillingSummary(Request $request, $appointmentId)
+    {
+        try {
+            $billingService = app(\App\Services\BillingService::class);
+            $summary = $billingService->getBillingSummary($appointmentId);
+            
+            // If account exists, also get detailed billing items
+            if ($summary['account_exists']) {
+                $billingItems = \App\Models\BillingItem::where('encounter_id', $appointmentId)
+                    ->where('status', '!=', 'cancelled')
+                    ->get()
+                    ->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'description' => $item->description,
+                            'quantity' => $item->quantity,
+                            'unit_price' => (float) $item->unit_price,
+                            'amount' => (float) $item->amount,
+                            'item_type' => $item->item_type,
+                            'status' => $item->status,
+                        ];
+                    });
+                
+                $summary['items'] = $billingItems;
+            }
+            
+            return response()->json($summary);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to fetch billing summary: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     /**
      * Edit SOAP notes for a consultation

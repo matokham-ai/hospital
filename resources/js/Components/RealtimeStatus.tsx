@@ -4,33 +4,51 @@ import { Wifi, WifiOff } from 'lucide-react';
 export default function RealtimeStatus() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [showStatus, setShowStatus] = useState(false);
 
   useEffect(() => {
-    // Check if Echo is available
-    if (window.Echo) {
-      // Listen for connection events
-      window.Echo.connector.pusher.connection.bind('connected', () => {
-        setIsConnected(true);
-        setLastUpdate(new Date());
-        console.log('✅ Real-time connection established');
-      });
+    // Check if Echo is available and properly configured
+    if (window.Echo && window.Echo.connector && window.Echo.connector.pusher) {
+      try {
+        setShowStatus(true); // Show status indicator when Echo is configured
+        
+        // Listen for connection events
+        window.Echo.connector.pusher.connection.bind('connected', () => {
+          setIsConnected(true);
+          setLastUpdate(new Date());
+          console.log('✅ Real-time connection established');
+        });
 
-      window.Echo.connector.pusher.connection.bind('disconnected', () => {
+        window.Echo.connector.pusher.connection.bind('disconnected', () => {
+          setIsConnected(false);
+          console.log('⚠️ Real-time connection lost');
+        });
+
+        // Check initial connection state
+        if (window.Echo.connector.pusher.connection.state === 'connected') {
+          setIsConnected(true);
+          setLastUpdate(new Date());
+        }
+      } catch (error) {
+        console.warn('Real-time status component error:', error);
         setIsConnected(false);
-        console.log('⚠️ Real-time connection lost');
-      });
-
-      // Check initial connection state
-      if (window.Echo.connector.pusher.connection.state === 'connected') {
-        setIsConnected(true);
-        setLastUpdate(new Date());
+        setShowStatus(false);
       }
+    } else {
+      // Echo not available or not configured - hide the component
+      setIsConnected(false);
+      setShowStatus(false);
     }
 
     return () => {
       // Cleanup listeners if needed
     };
   }, []);
+
+  // Don't render anything if Echo is not configured
+  if (!showStatus) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-4 right-4 z-50">

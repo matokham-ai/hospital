@@ -62,8 +62,10 @@ if (reverbKey && reverbHost) {
         }
     } catch (error) {
         console.warn('Failed to initialize Echo with Reverb:', error);
+        // Set Echo to null to prevent further connection attempts
+        window.Echo = null;
     }
-} else if (pusherKey && pusherKey !== 'missing' && pusherCluster) {
+} else if (pusherKey && pusherKey !== 'missing' && pusherKey !== '' && pusherCluster) {
     try {
         window.Echo = new Echo({
             broadcaster: 'pusher',
@@ -79,8 +81,12 @@ if (reverbKey && reverbHost) {
         }
     } catch (error) {
         console.warn('Failed to initialize Echo with Pusher:', error);
+        // Set Echo to null to prevent further connection attempts
+        window.Echo = null;
     }
 } else {
+    // Explicitly set Echo to null when broadcasting is disabled
+    window.Echo = null;
     if (import.meta.env.DEV) {
         console.info('ℹ️ Broadcasting disabled - no valid credentials found');
     }

@@ -13,7 +13,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './resources/js'),
+      
     },
+    dedupe: ["react", "react-dom"],
   },
 
 

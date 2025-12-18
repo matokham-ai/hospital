@@ -15,38 +15,52 @@ export default defineConfig({
       refresh: false,
     }),
     react({
-      // Disable Fast Refresh to reduce memory usage
-      fastRefresh: false,
-      // Reduce babel transformations
-      babel: {
-        compact: true,
-        minified: true
-      }
+      // Keep Fast Refresh enabled for better development experience
+      fastRefresh: true,
     }),
   ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'resources/js'),
     },
+    dedupe: ["react", "react-dom"],
   },
   build: {
     sourcemap: false,
-    minify: 'esbuild',
+    minify: 'terser',
     // Reduce memory usage during build
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       // Optimize memory usage
       maxParallelFileOps: 2,
       output: {
-        // More aggressive chunking to reduce memory pressure
-        manualChunks: (id) => {
+        // Fixed chunking strategy - React must load first
+        manualChunks(id) {
+          // Critical: Keep React, ReactDOM, and Inertia together in the first vendor chunk
+          // This prevents "Cannot read properties of undefined (reading 'forwardRef')" errors
+          if (id.includes('node_modules/react') ||
+              id.includes('node_modules/react-dom') ||
+              id.includes('node_modules/scheduler') ||
+              id.includes('@inertiajs/react')) {
+            return 'react-vendor';
+          }
           // Separate large UI libraries
-          if (id.includes('@radix-ui')) return 'radix-ui'
-          if (id.includes('@fullcalendar')) return 'fullcalendar'
-          if (id.includes('chart.js') || id.includes('recharts')) return 'charts'
-          if (id.includes('framer-motion')) return 'framer-motion'
-          if (id.includes('react') || id.includes('@inertiajs/react')) return 'react-vendor'
-          if (id.includes('node_modules')) return 'vendor'
+          if (id.includes('@radix-ui')) {
+            return 'radix-ui';
+          }
+          if (id.includes('@fullcalendar')) {
+            return 'fullcalendar';
+          }
+          if (id.includes('chart.js') || id.includes('react-chartjs-2') || id.includes('recharts')) {
+            return 'charts';
+          }
+          if (id.includes('framer-motion')) {
+            return 'framer-motion';
+          }
+          // Everything else from node_modules goes to vendor
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         },
         // Reduce chunk size
         chunkFileNames: 'assets/[name]-[hash].js',

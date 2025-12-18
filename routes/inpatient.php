@@ -42,6 +42,11 @@ Route::middleware(['auth', 'role:Admin|Doctor|Nurse'])->prefix('inpatient')->nam
     Route::get('/labs/{orderId}/pdf', [LabDiagnosticsController::class, 'generatePdf'])->name('labs.pdf');
     Route::get('/labs/{orderId}/pdf/preview', [LabDiagnosticsController::class, 'previewPdf'])->name('labs.pdf.preview');
 
+    // Only Admins can create new tests in the catalog
+    Route::middleware(['role:Admin'])->group(function () {
+        Route::post('/labs/test/new', [LabDiagnosticsController::class, 'storeNewTest'])->name('labs.storeNewTest');
+    });
+
     // Doctor Rounds - All can view, Doctors can create/update
     Route::get('/rounds', [DoctorRoundsController::class, 'index'])->name('rounds');
     Route::get('/rounds/{roundId}', [DoctorRoundsController::class, 'show'])->name('rounds.show');
