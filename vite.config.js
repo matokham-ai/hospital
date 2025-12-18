@@ -38,10 +38,14 @@ export default defineConfig({
         manualChunks(id) {
           // Critical: Keep React, ReactDOM, and Inertia together in the first vendor chunk
           // This prevents "Cannot read properties of undefined (reading 'forwardRef')" errors
-          if (id.includes('node_modules/react') ||
-              id.includes('node_modules/react-dom') ||
-              id.includes('node_modules/scheduler') ||
+          if (id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/scheduler/') ||
               id.includes('@inertiajs/react')) {
+            return 'react-vendor';
+          }
+          // Keep React-related packages together to prevent forwardRef issues
+          if (id.includes('react-') && id.includes('node_modules/')) {
             return 'react-vendor';
           }
           // Separate large UI libraries
